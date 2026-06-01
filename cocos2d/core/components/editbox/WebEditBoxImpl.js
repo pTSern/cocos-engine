@@ -268,8 +268,8 @@ Object.assign(WebEditBoxImpl.prototype, {
             }, DELAY_TIME);
         }
 
-        // This is an outdated strategy that causes other problems on newer systems, consider removing
-        // this._scrollBackWindow();
+        // Some browser like wechat on iOS need to mannully scroll back window
+        this._scrollBackWindow();
     },
 
     // adjust view to editBox
@@ -434,7 +434,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         } else if(inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
-            elem.onmousewheel = function () { return false; };
         } else if(inputMode === InputMode.URL) {
             type = 'url';
         } else {

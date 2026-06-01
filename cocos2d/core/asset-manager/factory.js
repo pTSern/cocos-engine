@@ -49,13 +49,6 @@ function createAudioClip (id, data, options, onComplete) {
     onComplete && onComplete(null, out);
 }
 
-function createVideoClip (id, data, options, onComplete) {
-    let out = new cc.VideoClip();
-    out._nativeUrl = id;
-    out._nativeAsset = data;
-    onComplete && onComplete(null, out);
-}
-
 function createJsonAsset (id, data, options, onComplete) {
     let out = new cc.JsonAsset();
     out.json = data;
@@ -148,22 +141,12 @@ const producers = {
     '.image' : createTexture,
     '.pvr': createTexture,
     '.pkm': createTexture,
-    '.astc': createTexture,
 
     // Audio
     '.mp3' : createAudioClip,
     '.ogg' : createAudioClip,
     '.wav' : createAudioClip,
     '.m4a' : createAudioClip,
-
-    // Video
-    '.mp4' : createVideoClip,
-    '.avi' : createVideoClip,
-    '.mov' : createVideoClip,
-    '.mpg' : createVideoClip,
-    '.mpeg': createVideoClip,
-    '.rm'  : createVideoClip,
-    '.rmvb': createVideoClip,
 
     // Txt
     '.txt' : createTextAsset,

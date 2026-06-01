@@ -14,9 +14,6 @@ export default class Pass {
         this._properties = properties;
         this._defines = defines;
 
-        this._propertyNames = Object.keys(properties)
-        this._defineNames = Object.keys(defines)
-
         // cullmode
         this._cullMode = gfx.CULL_BACK;
 
@@ -238,8 +235,6 @@ export default class Pass {
 
         pass._properties = newProperties;
         pass._defines = Object.assign({}, this._defines);
-        pass._propertyNames = this._propertyNames;
-        pass._defineNames = this._defineNames;
 
         return pass;
     }

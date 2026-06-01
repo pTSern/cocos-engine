@@ -167,11 +167,6 @@ let Mask = cc.Class({
                         return;
                     }
                 }
-
-                if (lastSprite) {
-                    lastSprite.off('load', this.setVertsDirty, this);
-                }
-
                 this._spriteFrame = value;
                 
                 this.setVertsDirty();
@@ -272,9 +267,6 @@ let Mask = cc.Class({
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
-        else if (this._spriteFrame) {
-            this._spriteFrame.once('load', this.setVertsDirty, this);
-        }
 
         this.node.on(cc.Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
         this.node.on(cc.Node.EventType.ROTATION_CHANGED, this._updateGraphics, this);
@@ -298,10 +290,6 @@ let Mask = cc.Class({
     onDestroy () {
         this._super();
         this._removeGraphics();
-
-        if (this._spriteFrame) {
-            this._spriteFrame.off('load', this.setVertsDirty, this);
-        }
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -425,7 +413,6 @@ let Mask = cc.Class({
         else {
             graphics.fill();
         }
-        this.setVertsDirty();
     },
 
     _removeGraphics () {

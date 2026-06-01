@@ -82,7 +82,6 @@ pool.get = function (string, richtext) {
     let labelNode = this._get();
     if (!labelNode) {
         labelNode = new cc.PrivateNode(RichTextChildName);
-        labelNode._objFlags |= cc.Object.Flags.DontSave;
     }
 
     labelNode.setPosition(0, 0);
@@ -359,7 +358,7 @@ let RichText = cc.Class({
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
-        this._onTTFLoaded();
+        this._updateRichText();
         this._activateChildren(true);
     },
 
@@ -368,6 +367,10 @@ let RichText = cc.Class({
             this._removeEventListeners();
         }
         this._activateChildren(false);
+    },
+
+    start () {
+        this._onTTFLoaded();
     },
 
     _onColorChanged (parentColor) {
@@ -401,19 +404,19 @@ let RichText = cc.Class({
         if (this.font instanceof cc.TTFFont) {
             if (this.font._nativeAsset) {
                 this._layoutDirty = true;
-                this._updateRichTextStatus();
+                this._updateRichText();
             }
             else {
                 let self = this;
                 cc.assetManager.postLoadNative(this.font, function (err) {
                     self._layoutDirty = true;
-                    self._updateRichTextStatus();
+                    self._updateRichText();
                 });
             }
         }
         else {
             this._layoutDirty = true;
-            this._updateRichTextStatus();
+            this._updateRichText();
         }
     },
 
@@ -492,6 +495,7 @@ let RichText = cc.Class({
     },
 
     onRestore: CC_EDITOR && function () {
+        // TODO: refine undo/redo system
         // Because undo/redo will not call onEnable/onDisable,
         // we need call onEnable/onDisable manually to active/disactive children nodes.
         if (this.enabledInHierarchy) {
@@ -523,7 +527,7 @@ let RichText = cc.Class({
         labelSegment.active = this.node.active;
 
         labelSegment.setAnchorPoint(0, 0);
-        this._applyTextAttribute(labelSegment, stringToken, !!CC_EDITOR);
+        this._applyTextAttribute(labelSegment, stringToken);
 
         this.node.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
@@ -651,7 +655,6 @@ let RichText = cc.Class({
         let spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
         if (spriteFrame) {
             let spriteNode = new cc.PrivateNode(RichTextChildImageName);
-            spriteNode._objFlags |= cc.Object.Flags.DontSave;
             let spriteComponent = spriteNode.addComponent(cc.Sprite);
             switch (richTextElement.style.imageAlign)
             {

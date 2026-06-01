@@ -250,6 +250,7 @@ let Animation = cc.Class({
     },
 
     onDisable: function () {
+
         if (this._animator) {
             this._animator.pause();
         }
@@ -368,6 +369,7 @@ let Animation = cc.Class({
      * @param {String} [name] - The animation to pauses, if not supplied then pauses all playing animations.
      */
     pause: function (name) {
+
         if (!this._didInit) {
             return;
         }
@@ -450,18 +452,6 @@ let Animation = cc.Class({
         }
 
         return state || null;
-    },
-
-    /**
-     * !#en Check whether the animation State with the name already exists.
-     * !#zh 通过名称判断是否包含某动画状态。也可用来判断是否已经添加了同名 clip.
-     * @method hasAnimationState
-     * @param {String} name
-     * @return {boolean} - Whether the animation State with the name already exists.
-     */
-    hasAnimationState: function (name) {
-        this._init();
-        return !!(this._nameToState[name]);
     },
 
     /**
@@ -579,6 +569,7 @@ let Animation = cc.Class({
             this._animator.sample();
         }
     },
+
 
     /**
      * !#en

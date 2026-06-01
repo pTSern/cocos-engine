@@ -228,7 +228,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture && this._texture.loaded;
     },
 
-    onTextureLoaded: function (callback, target) {
+    onTextureLoaded (callback, target) {
         if (this.textureLoaded()) {
             callback.call(target);
         }
@@ -259,9 +259,8 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setRotated: function (bRotated) {
         this._rotated = bRotated;
-        if (this._texture) {
+        if (this._texture)
             this._calculateUV();
-        }
     },
 
     /**
@@ -328,11 +327,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setRect: function (rect) {
         this._rect = rect;
-        if (this._texture) {
+        if (this._texture)
             this._calculateUV();
-        }
     },
-
+    
     /**
      * !#en Returns the original size of the trimmed image.
      * !#zh 获取修剪前的原始大小
@@ -368,7 +366,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
-    _textureLoadedCallback: function () {
+    _textureLoadedCallback () {
         let self = this;
         let texture = this._texture;
         if (!texture) {
@@ -385,11 +383,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         if (!self._originalSize) {
-            self._originalSize = cc.size(w, h);
+            self.setOriginalSize(cc.size(w, h));
         }
 
         if (!self._offset) {
-            self._offset = cc.v2(0, 0);
+            self.setOffset(cc.v2(0, 0));
         }
 
         self._calculateUV();
@@ -548,7 +546,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _flipXY: function (uvs) {
+    _flipXY (uvs) {
         if (this._flipX) {
             let tempVal = uvs[0];
             uvs[0] = uvs[1];
@@ -570,7 +568,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _calculateSlicedUV: function () {
+    _calculateSlicedUV () {
         let rect = this._rect;
         let atlasWidth = this._texture.width;
         let atlasHeight = this._texture.height;
@@ -631,7 +629,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _setDynamicAtlasFrame: function (frame) {
+    _setDynamicAtlasFrame (frame) {
         if (!frame) return;
 
         this._original = {
@@ -639,27 +637,23 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             _x : this._rect.x,
             _y : this._rect.y
         }
-
+        
         this._texture = frame.texture;
         this._rect.x = frame.x;
         this._rect.y = frame.y;
         this._calculateUV();
     },
 
-    _resetDynamicAtlasFrame: function () {
+    _resetDynamicAtlasFrame () {
         if (!this._original) return;
         this._rect.x = this._original._x;
         this._rect.y = this._original._y;
         this._texture = this._original._texture;
         this._original = null;
-        if (this._texture.loaded) {
-            this._calculateUV();
-        } else {
-            this.ensureLoadTexture()
-        }
+        this._calculateUV();
     },
 
-    _calculateUV: function () {
+    _calculateUV () {
         let rect = this._rect,
             texture = this._texture,
             uv = this.uv,

@@ -28,6 +28,8 @@ const macro = require('./CCMacro');
 const sys = require('./CCSys');
 const eventManager = require('../event-manager');
 
+const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
+
 let _vec2 = cc.v2();
 
 /**
@@ -38,28 +40,20 @@ let inputManager = {
 
     _isRegisterEvent: false,
 
-    _preTouchPoint: cc.v2(0,0),
-    _prevMousePoint: cc.v2(0,0),
+    _preTouchPoint: cc.v2(0, 0),
+    _prevMousePoint: cc.v2(0, 0),
 
     _preTouchPool: [],
     _preTouchPoolPointer: 0,
 
-    // All touches pool
     _touches: [],
-    // Maximum available touches, it's also the length of _touches array
-    _maxTouches: 10,
-    // Global touches map with touch id as key and index in _touches as value 
-    _touchesIntegerDict:{},
-    // A bit mask for index of _touches, every bit indicates whether the correspond touch is currently valid
-    _indexBitsUsed: 0,
+    _touchesIntegerDict: {},
 
-    // A global touches map with touch id as key and touch object as value, only contains currently valid touches
-    _touchesCache: {},
-    // Current global touches count (only valid touches)
-    _touchCount: 0,
+    _indexBitsUsed: 0,
+    _maxTouches: 8,
 
     _accelEnabled: false,
-    _accelInterval: 1/5,
+    _accelInterval: 1 / 5,
     _accelMinus: 1,
     _accelCurTime: 0,
     _acceleration: null,
@@ -74,49 +68,42 @@ let inputManager = {
         height: 0,
     },
 
-    _getUnUsedIndex () {
-        let now = cc.sys.now();
-        const timeout = macro.TOUCH_TIMEOUT
-
+    _getUnUsedIndex() {
         let temp = this._indexBitsUsed;
-        let unused = -1;
-
-        let locTouches = this._touches;
-        let locTouchesIntDict = this._touchesIntegerDict;
-        let locTouchesCache = this._touchesCache;
+        let now = cc.sys.now();
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {
-                if (unused === -1){
-                    unused = i;
-                    this._indexBitsUsed |= (1 << i);
-                }
-            } else {
-                const ccTouch = locTouches[i];
-                if (ccTouch && (now - ccTouch._lastModified > timeout)) {
-                    const touchID = ccTouch.getID();
-                    delete locTouchesIntDict[touchID];
-                    delete locTouchesCache[touchID];
-                    this._touchCount--;
-
-                    if (unused === -1) {
-                        unused = i;
-                        this._indexBitsUsed |= (1 << i);
-                    } else {
-                        this._indexBitsUsed &= ~(1 << i);
-                    }
+                this._indexBitsUsed |= (1 << i);
+                return i;
+            }
+            else {
+                let touch = this._touches[i];
+                if (now - touch._lastModified > TOUCH_TIMEOUT) {
+                    this._removeUsedIndexBit(i);
+                    delete this._touchesIntegerDict[touch.getID()];
+                    return i;
                 }
             }
-
             temp >>= 1;
         }
 
-        return unused;
+        // all bits are used
+        return -1;
+    },
+
+    _removeUsedIndexBit(index) {
+        if (index < 0 || index >= this._maxTouches)
+            return;
+
+        let temp = 1 << index;
+        temp = ~temp;
+        this._indexBitsUsed &= temp;
     },
 
     _glView: null,
 
-    _updateCanvasBoundingRect () {
+    _updateCanvasBoundingRect() {
         let element = cc.game.canvas;
         let canvasBoundingRect = this._canvasBoundingRect;
 
@@ -148,37 +135,27 @@ let inputManager = {
      * @method handleTouchesBegin
      * @param {Array} touches
      */
-    handleTouchesBegin (touches) {
-        let now = sys.now();
-
-        let selTouch, index, touchID, handleTouches = [];
-
-        let locTouches = this._touches;
-        let locTouchesIntDict = this._touchesIntegerDict;
-        let locTouchesCache = this._touchesCache;
-
-        for (let i = 0, len = touches.length; i < len; i ++) {
+    handleTouchesBegin(touches) {
+        let selTouch, index, curTouch, touchID,
+            handleTouches = [], locTouchIntDict = this._touchesIntegerDict,
+            now = sys.now();
+        for (let i = 0, len = touches.length; i < len; i++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
+            index = locTouchIntDict[touchID];
 
-            index = locTouchesIntDict[touchID];
-            if (index === undefined) {
+            if (index == null) {
                 let unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
                     cc.logID(2300, unusedIndex);
                     continue;
                 }
-
-                let ccTouch = new cc.Touch(selTouch._point.x, selTouch._point.y, touchID);
-                ccTouch._setPrevPoint(selTouch._prevPoint);
-                ccTouch._lastModified = now;
-
-                locTouches[unusedIndex] = ccTouch;
-                locTouchesIntDict[touchID] = unusedIndex;
-                locTouchesCache[touchID] = ccTouch;
-                this._touchCount++;
-
-                handleTouches.push(ccTouch);
+                //curTouch = this._touches[unusedIndex] = selTouch;
+                curTouch = this._touches[unusedIndex] = new cc.Touch(selTouch._point.x, selTouch._point.y, selTouch.getID());
+                curTouch._lastModified = now;
+                curTouch._setPrevPoint(selTouch._prevPoint);
+                locTouchIntDict[touchID] = unusedIndex;
+                handleTouches.push(curTouch);
             }
         }
         if (handleTouches.length > 0) {
@@ -193,33 +170,26 @@ let inputManager = {
      * @method handleTouchesMove
      * @param {Array} touches
      */
-    handleTouchesMove (touches) {
-        let now = sys.now();
-
-        let selTouch, index, touchID, handleTouches = [];
-
-        let locTouches = this._touches;
-        let locTouchesIntDict = this._touchesIntegerDict;
-
+    handleTouchesMove(touches) {
+        let selTouch, index, touchID,
+            handleTouches = [], locTouches = this._touches,
+            now = sys.now();
         for (let i = 0, len = touches.length; i < len; i++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
+            index = this._touchesIntegerDict[touchID];
 
-            index = locTouchesIntDict[touchID];
-            if (index === undefined) {
+            if (index == null) {
                 //cc.log("if the index doesn't exist, it is an error");
                 continue;
             }
-
-            const ccTouch = locTouches[index];
-            if (ccTouch) {
-                ccTouch._setPoint(selTouch._point);
-                ccTouch._setPrevPoint(selTouch._prevPoint);
-                ccTouch._lastModified = now;
-                handleTouches.push(ccTouch);
+            if (locTouches[index]) {
+                locTouches[index]._setPoint(selTouch._point);
+                locTouches[index]._setPrevPoint(selTouch._prevPoint);
+                locTouches[index]._lastModified = now;
+                handleTouches.push(locTouches[index]);
             }
         }
-
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
             let touchEvent = new cc.Event.EventTouch(handleTouches);
@@ -232,7 +202,7 @@ let inputManager = {
      * @method handleTouchesEnd
      * @param {Array} touches
      */
-    handleTouchesEnd (touches) {
+    handleTouchesEnd(touches) {
         let handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
@@ -247,7 +217,7 @@ let inputManager = {
      * @method handleTouchesCancel
      * @param {Array} touches
      */
-    handleTouchesCancel (touches) {
+    handleTouchesCancel(touches) {
         let handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
@@ -263,52 +233,25 @@ let inputManager = {
      * @param {Array} touches
      * @returns {Array}
      */
-    getSetOfTouchesEndOrCancel (touches) {
-        let selTouch, index, touchID, handleTouches = [];
-
-        let locTouches = this._touches;
-        let locTouchesIntDict = this._touchesIntegerDict;
-        let locTouchesCache = this._touchesCache;
-        for (let i = 0, len = touches.length; i< len; i ++) {
+    getSetOfTouchesEndOrCancel(touches) {
+        let selTouch, index, touchID, handleTouches = [], locTouches = this._touches, locTouchesIntDict = this._touchesIntegerDict;
+        for (let i = 0, len = touches.length; i < len; i++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
             index = locTouchesIntDict[touchID];
 
-            if (index === undefined) {
+            if (index == null) {
                 continue;  //cc.log("if the index doesn't exist, it is an error");
             }
-
-            const ccTouch = locTouches[index];
-            if (ccTouch) {
-                ccTouch._setPoint(selTouch._point);
-                ccTouch._setPrevPoint(selTouch._prevPoint);
-                handleTouches.push(ccTouch);
+            if (locTouches[index]) {
+                locTouches[index]._setPoint(selTouch._point);
+                locTouches[index]._setPrevPoint(selTouch._prevPoint);
+                handleTouches.push(locTouches[index]);
+                this._removeUsedIndexBit(index);
                 delete locTouchesIntDict[touchID];
-                delete locTouchesCache[touchID];
-                this._touchCount--;
-
-                this._indexBitsUsed &= ~(1 << index);
             }
         }
         return handleTouches;
-    },
-
-    /**
-     * Gets the count of all currently valid touches.
-     * @method getGlobalTouchCount
-     * @return Current global touches count (only valid touches)
-     */
-    getGlobalTouchCount () {
-        return this._touchCount;
-    },
-
-    /**
-     * Gets global touches map, please do not modify the touches, otherwise all event listener will be affected
-     * @method getGlobalTouches
-     * @return A global touches map with touch id as key and touch object as value, only contains currently valid touches
-     */
-    getGlobalTouches () {
-        return this._touchesCache;
     },
 
     /**
@@ -316,7 +259,7 @@ let inputManager = {
      * @param {Touch} touch
      * @return {Touch}
      */
-    getPreTouch (touch) {
+    getPreTouch(touch) {
         let preTouch = null;
         let locPreTouchPool = this._preTouchPool;
         let id = touch.getID();
@@ -335,7 +278,7 @@ let inputManager = {
      * @method setPreTouch
      * @param {Touch} touch
      */
-    setPreTouch (touch) {
+    setPreTouch(touch) {
         let find = false;
         let locPreTouchPool = this._preTouchPool;
         let id = touch.getID();
@@ -363,7 +306,7 @@ let inputManager = {
      * @param {Vec2} pos
      * @return {Touch}
      */
-    getTouchByXY (tx, ty, pos) {
+    getTouchByXY(tx, ty, pos) {
         let locPreTouch = this._preTouchPoint;
         let location = this._glView.convertToLocationInView(tx, ty, pos);
         let touch = new cc.Touch(location.x, location.y, 0);
@@ -380,7 +323,7 @@ let inputManager = {
      * @param {Number} eventType
      * @returns {Event.EventMouse}
      */
-    getMouseEvent (location, pos, eventType) {
+    getMouseEvent(location, pos, eventType) {
         let locPreMouse = this._prevMousePoint;
         let mouseEvent = new cc.Event.EventMouse(eventType);
         mouseEvent._setPrevCursor(locPreMouse.x, locPreMouse.y);
@@ -397,7 +340,7 @@ let inputManager = {
      * @param {Vec2} pos
      * @return {Vec2}
      */
-    getPointByEvent (event, pos) {
+    getPointByEvent(event, pos) {
         // qq , uc and safari browser can't calculate pageY correctly, need to refresh canvas bounding rect
         if (cc.sys.browserType === cc.sys.BROWSER_TYPE_QQ
             || cc.sys.browserType === cc.sys.BROWSER_TYPE_UC
@@ -406,12 +349,12 @@ let inputManager = {
         }
 
         if (event.pageX != null)  //not avalable in <= IE8
-            return {x: event.pageX, y: event.pageY};
+            return { x: event.pageX, y: event.pageY };
 
         pos.left -= document.body.scrollLeft;
         pos.top -= document.body.scrollTop;
 
-        return {x: event.clientX, y: event.clientY};
+        return { x: event.clientX, y: event.clientY };
     },
 
     /**
@@ -420,7 +363,7 @@ let inputManager = {
      * @param {Vec2} pos
      * @returns {Array}
      */
-    getTouchesByEvent (event, pos) {
+    getTouchesByEvent(event, pos) {
         let touchArr = [], locView = this._glView;
         let touch_event, touch, preLocation;
         let locPreTouch = this._preTouchPoint;
@@ -456,8 +399,8 @@ let inputManager = {
      * @method registerSystemEvent
      * @param {HTMLElement} element
      */
-    registerSystemEvent (element) {
-        if(this._isRegisterEvent) return;
+    registerSystemEvent(element) {
+        if (this._isRegisterEvent) return;
 
         this._glView = cc.view;
         let selfPointer = this;
@@ -487,9 +430,8 @@ let inputManager = {
                         return;
 
                     selfPointer._mousePressed = false;
-
                     let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
-                    if (!cc.rect(canvasBoundingRect.left, canvasBoundingRect.top, canvasBoundingRect.width, canvasBoundingRect.height).contains(location)){
+                    if (!cc.rect(canvasBoundingRect.left, canvasBoundingRect.top, canvasBoundingRect.width, canvasBoundingRect.height).contains(location)) {
                         selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
 
                         let mouseEvent = selfPointer.getMouseEvent(location, canvasBoundingRect, cc.Event.EventMouse.UP);
@@ -548,14 +490,14 @@ let inputManager = {
 
         if (window.navigator.msPointerEnabled) {
             let _pointerEventsMap = {
-                "MSPointerDown"     : selfPointer.handleTouchesBegin,
-                "MSPointerMove"     : selfPointer.handleTouchesMove,
-                "MSPointerUp"       : selfPointer.handleTouchesEnd,
-                "MSPointerCancel"   : selfPointer.handleTouchesCancel
+                "MSPointerDown": selfPointer.handleTouchesBegin,
+                "MSPointerMove": selfPointer.handleTouchesMove,
+                "MSPointerUp": selfPointer.handleTouchesEnd,
+                "MSPointerCancel": selfPointer.handleTouchesCancel
             };
             for (let eventName in _pointerEventsMap) {
                 let touchEvent = _pointerEventsMap[eventName];
-                element.addEventListener(eventName, function (event){
+                element.addEventListener(eventName, function (event) {
                     let documentElement = document.documentElement;
                     canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - documentElement.scrollLeft;
                     canvasBoundingRect.adjustedTop = canvasBoundingRect.top - documentElement.scrollTop;
@@ -586,7 +528,7 @@ let inputManager = {
 
             let registerTouchEvent = function (eventName) {
                 let handler = _touchEventsMap[eventName];
-                element.addEventListener(eventName, (function(event) {
+                element.addEventListener(eventName, (function (event) {
                     if (!event.changedTouches) return;
                     let body = document.body;
 
@@ -607,22 +549,21 @@ let inputManager = {
         this._isRegisterEvent = true;
     },
 
-    _registerKeyboardEvent () {},
+    _registerKeyboardEvent() { },
 
-    _registerAccelerometerEvent () {},
+    _registerAccelerometerEvent() { },
 
     /**
      * @method update
      * @param {Number} dt
      */
-    update (dt) {
+    update(dt) {
         if (this._accelCurTime > this._accelInterval) {
             this._accelCurTime -= this._accelInterval;
             eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
         }
         this._accelCurTime += dt;
-    },
-
+    }
 };
 
 module.exports = cc.internal.inputManager = inputManager;

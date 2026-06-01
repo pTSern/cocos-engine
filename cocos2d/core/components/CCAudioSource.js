@@ -202,6 +202,7 @@ var AudioSource = cc.Class({
     },
 
     _pausedCallback: function () {
+
         var state = this.audio.getState();
         if (state === cc._Audio.State.PLAYING) {
             this.audio.pause();
@@ -275,6 +276,7 @@ var AudioSource = cc.Class({
      * @method pause
      */
     pause: function () {
+
         this.audio.pause();
     },
 

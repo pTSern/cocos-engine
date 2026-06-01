@@ -299,6 +299,7 @@ var game = {
      * @method resume
      */
     resume: function () {
+
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
@@ -769,7 +770,6 @@ var game = {
             addClass(localCanvas, "gameCanvas");
             localCanvas.setAttribute("width", width || 480);
             localCanvas.setAttribute("height", height || 320);
-            localCanvas.setAttribute("tabindex", 99);
         }
 
         this._determineRenderType();

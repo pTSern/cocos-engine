@@ -147,12 +147,12 @@ let VideoPlayer = cc.Class({
 
         _clip: {
             default: null,
-            type: cc.VideoClip
+            type: cc.Asset
         },
         /**
-         * !#en The local video clip.
-         * !#zh 本地视频剪辑
-         * @property {VideoClip} clip
+         * !#en The local video full path.
+         * !#zh 本地视频的 URL
+         * @property {String} clip
          */
         clip: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.video',
@@ -163,7 +163,7 @@ let VideoPlayer = cc.Class({
                 this._clip = value;
                 this._updateVideoSource();
             },
-            type: cc.VideoClip
+            type: cc.Asset
         },
 
         /**

@@ -432,7 +432,7 @@ let TiledMap = cc.Class({
      * !#en enable or disable culling
      * !#zh 开启或关闭裁剪。
      * @method enableCulling
-     * @param {boolean} value
+     * @param value
      */
     enableCulling (value) {
         let layers = this._layers;

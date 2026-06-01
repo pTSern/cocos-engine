@@ -137,7 +137,7 @@ let TiledLayer = cc.Class({
      * !#en enable or disable culling
      * !#zh 开启或关闭裁剪。
      * @method enableCulling
-     * @param {boolean} value
+     * @param value
      */
     enableCulling (value) {
         if (this._enableCulling != value) {
@@ -375,7 +375,7 @@ let TiledLayer = cc.Class({
     /**
      * !#en Set the layer name.
      * !#zh 设置层的名称
-     * @method setLayerName
+     * @method SetLayerName
      * @param {String} layerName
      * @example
      * tiledLayer.setLayerName("New Layer");

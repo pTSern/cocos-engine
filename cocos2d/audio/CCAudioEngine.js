@@ -45,7 +45,7 @@ let recycleAudio = function (audio) {
     audio.src = null;
     // In case repeatly recycle audio
     if (!_audioPool.includes(audio)) {
-        if (_audioPool.length < audioEngine._maxPoolSize) {
+        if (_audioPool.length < 32) {
             _audioPool.push(audio);
         }
         else {
@@ -56,7 +56,7 @@ let recycleAudio = function (audio) {
 };
 
 let getAudioFromPath = function (path) {
-    var id = ++_instanceId;
+    var id = _instanceId++;
     var list = _url2id[path];
     if (!list) {
         list = _url2id[path] = [];
@@ -128,8 +128,6 @@ var audioEngine = {
     AudioState: Audio.State,
 
     _maxAudioInstance: 24,
-
-    _maxPoolSize: 32,
 
     _id2audio: _id2audio,
 
@@ -291,18 +289,6 @@ var audioEngine = {
     },
 
     /**
-     * !#en Whether the audio is playing
-     * !#zh 音乐是否正在播放
-     * @method isPlaying
-     * @return {Boolean}
-     * @example
-     * cc.audioEngine.isPlaying(audioID);
-     */
-    isPlaying: function(audioID) {
-        return this.getState(audioID) === this.AudioState.PLAYING;
-    },
-
-    /**
      * !#en Set Audio finish callback
      * !#zh 设置一个音频结束后的回调
      * @method setFinishCallback
@@ -327,6 +313,7 @@ var audioEngine = {
      * cc.audioEngine.pause(audioID);
      */
     pause: function (audioID) {
+
         var audio = getAudioFromId(audioID);
         if (audio) {
             audio.pause();
@@ -346,6 +333,7 @@ var audioEngine = {
      * cc.audioEngine.pauseAll();
      */
     pauseAll: function () {
+
         for (var id in _id2audio) {
             var audio = _id2audio[id];
             var state = audio.getState();
@@ -513,6 +501,7 @@ var audioEngine = {
 
     _breakCache: null,
     _break: function () {
+
         this._breakCache = [];
         for (var id in _id2audio) {
             var audio = _id2audio[id];
@@ -712,6 +701,7 @@ var audioEngine = {
      * cc.audioEngine.pauseAllEffects();
      */
     pauseAllEffects: function () {
+
         var musicId = this._music.id;
         var effect = this._effect;
         effect.pauseCache.length = 0;

@@ -159,10 +159,8 @@ export default class ParticleSystem3D extends RenderComponent {
     set simulationSpace (val) {
         if (val !== this._simulationSpace) {
             this._simulationSpace = val;
-            if (this._assembler) {
-                this._assembler._updateMaterialParams();
-                this._assembler._updateTrailMaterial();
-            }
+            this._assembler._updateMaterialParams();
+            this._assembler._updateTrailMaterial();
         }
     }
 
@@ -496,11 +494,9 @@ export default class ParticleSystem3D extends RenderComponent {
             return;
         }
         this._renderMode = val;
-        if (this._assembler) {
-            this._assembler._setVertexAttrib();
-            this._assembler._updateModel();
-            this._assembler._updateMaterialParams();
-        }
+        this._assembler._setVertexAttrib();
+        this._assembler._updateModel();
+        this._assembler._updateMaterialParams();
     }
 
     @property
@@ -520,7 +516,7 @@ export default class ParticleSystem3D extends RenderComponent {
 
     set velocityScale (val) {
         this._velocityScale = val;
-        this._assembler && this._assembler._updateMaterialParams();
+        this._assembler._updateMaterialParams();
     }
 
     @property
@@ -539,7 +535,7 @@ export default class ParticleSystem3D extends RenderComponent {
 
     set lengthScale (val) {
         this._lengthScale = val;
-        this._assembler && this._assembler._updateMaterialParams();
+        this._assembler._updateMaterialParams();
     }
 
     @property
@@ -560,7 +556,7 @@ export default class ParticleSystem3D extends RenderComponent {
 
     set mesh (val) {
         this._mesh = val;
-        this._assembler && this._assembler._updateModel();
+        this._assembler._updateModel();
     }
 
     /**
@@ -650,11 +646,11 @@ export default class ParticleSystem3D extends RenderComponent {
     }
 
     _onMaterialModified (index, material) {
-        this._assembler && this._assembler._onMaterialModified(index, material);
+        this._assembler._onMaterialModified(index, material);
     }
 
     _onRebuildPSO (index, material) {
-        this._assembler && this._assembler._onRebuildPSO(index, material);
+        this._assembler._onRebuildPSO(index, material);
     }
 
     // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.
@@ -734,13 +730,13 @@ export default class ParticleSystem3D extends RenderComponent {
      */
     clear () {
         if (this.enabledInHierarchy) {
-            this._assembler && this._assembler.clear();
+            this._assembler.clear();
             this.trailModule.clear();
         }
     }
 
     getParticleCount () {
-        return this._assembler ? this._assembler.getParticleCount() : 0;
+        return this._assembler.getParticleCount();
     }
 
     setCustomData1 (x, y) {
@@ -796,9 +792,6 @@ export default class ParticleSystem3D extends RenderComponent {
     }
 
     emit (count, dt) {
-        if (!this._assembler) {
-            return;
-        }
 
         if (this._simulationSpace === Space.World) {
             this.node.getWorldMatrix(_world_mat);
@@ -871,7 +864,7 @@ export default class ParticleSystem3D extends RenderComponent {
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
             this._emit(dt);
-            this._assembler && this._assembler._updateParticles(dt);
+            this._assembler._updateParticles(dt);
         }
     }
 

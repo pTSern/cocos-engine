@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -1186,7 +1186,7 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
             (attrs || initAttrs())[propNamePrefix + 'serializable'] = false;
         }
     }
-
+    
     // if (CC_BUILD || CC_TEST) {
     //     let fsa = attributes.formerlySerializedAs;
     //     if (fsa) {
@@ -1207,8 +1207,6 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
 
     if (CC_EDITOR) {
         parseSimpleAttr('notifyFor', 'string');
-
-        parseSimpleAttr('precision', 'number');
 
         if ('animatable' in attributes) {
             (attrs || initAttrs())[propNamePrefix + 'animatable'] = !!attributes.animatable;

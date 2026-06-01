@@ -180,6 +180,7 @@ Audio.State = {
     };
 
     proto.pause = function () {
+
         if (this.getState() !== Audio.State.PLAYING) {
             return;
         }
@@ -205,6 +206,7 @@ Audio.State = {
     };
 
     proto.stop = function () {
+
         let self = this;
         this._src && this._src._ensureLoaded(function () {
             self._element.pause();
@@ -288,7 +290,7 @@ Audio.State = {
         },
         set: function (clip) {
             this._unbindEnded();
-            if (clip && clip.isValid) {
+            if (clip) {
                 if (clip !== this._src) {
                     this._src = clip;
                     if (!clip.loaded) {
@@ -504,6 +506,7 @@ let WebAudioElement = function (buffer, audio) {
             return this._volume;
         },
         set: function (num) {
+
             this._volume = num;
             // https://www.chromestatus.com/features/5287995770929152
             if (this._gainObj.gain.setTargetAtTime) {
@@ -542,6 +545,7 @@ let WebAudioElement = function (buffer, audio) {
             return this.playedLength;
         },
         set: function (num) {
+
             if (!this.paused) {
                 this.pause();
                 this.playedLength = num;

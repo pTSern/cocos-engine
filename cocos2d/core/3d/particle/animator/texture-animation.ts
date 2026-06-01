@@ -85,42 +85,22 @@ export default class TextureAnimationModule {
             return;
         }
     }
-    @property
-    _numTilesX = 0;
+
     /**
      * !#en Animation frames in X direction.
      * !#zh X 方向动画帧数。
      * @property {Number} numTilesX
      */
     @property
-    get numTilesX () {
-        return this._numTilesX;
-    };
+    numTilesX = 0;
 
-    set numTilesX (val) {
-        if (this._numTilesX === val) return;
-        this._numTilesX = val;
-        if (this.ps && this.ps._assembler) this.ps._assembler._updateMaterialParams();
-    }
-
-
-    @property
-    _numTilesY = 0;
     /**
      * !#en Animation frames in Y direction.
      * !#zh Y 方向动画帧数。
      * @property {Number} numTilesY
      */
     @property
-    get numTilesY () {
-        return this._numTilesY;
-    }
-
-    set numTilesY (val) {
-        if (this._numTilesY === val) return;
-        this._numTilesY = val;
-        if (this.ps && this.ps._assembler) this.ps._assembler._updateMaterialParams();
-    }
+    numTilesY = 0;
 
     /**
      * !#en The way of the animation plays.

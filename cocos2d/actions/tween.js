@@ -200,7 +200,7 @@ Tween.stopAll = function () {
  * @param {number} tag
  */
 Tween.stopAllByTag = function (tag) {
-    cc.director.getActionManager().removeAllActionsByTag(tag);
+    cc.director.getActionManager().removeActionByTag(tag);
 }
 /**
  * !#en Stop all tweens by target
@@ -294,7 +294,6 @@ Tween.prototype.start = function () {
 Tween.prototype.stop = function () {
     if (this._finalAction) {
         cc.director.getActionManager().removeAction(this._finalAction);
-        this._finalAction = null;
     }
     return this;
 };
@@ -633,7 +632,10 @@ let previousAsInputActions = {
      * @return {Tween}
      * @typescript repeatForever(action?: Action|Tween<T>): Tween<T>
      */
-    repeatForever: cc.repeatForever,
+    repeatForever: function (action) {
+        // TODO: fixed with cc.repeatForever
+        return cc.repeat(action, 10e8);
+    },
     /**
      * !#en
      * Add an reverse time action. This action will integrate before actions to a sequence action as their parameters.

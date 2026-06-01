@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -276,7 +276,7 @@ function instantiateObj (obj, parent) {
                     }
                 }
                 else if (obj instanceof cc.Component) {
-                    if (!obj.node?.isChildOf(parent)) {
+                    if (!obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
                     }

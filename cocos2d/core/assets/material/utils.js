@@ -15,16 +15,12 @@ import enums from '../../../renderer/enums';
 //     return hash;
 // }
 
-const hashArray = [];
-
-function serializeDefines (defines, names) {
-    const len = names.length;
-    for (let i = 0; i < len; i++) {
-        const name = names[i];
-        hashArray[i] = name + defines[name];
+function serializeDefines (defines) {
+    let str = '';
+    for (let name in defines) {
+        str += name + defines[name];
     }
-    hashArray.length = len;
-    return hashArray.join('');
+    return str;
 }
 
 function serializePass (pass, excludeProperties) {
@@ -46,9 +42,9 @@ function serializePass (pass, excludeProperties) {
     }
 
     if (!excludeProperties) {
-        str += serializeUniforms(pass._properties, pass._propertyNames);
+        str += serializeUniforms(pass._properties);
     }
-    str += serializeDefines(pass._defines, pass._defineNames);
+    str += serializeDefines(pass._defines);
 
     return str;
 }
@@ -61,10 +57,10 @@ function serializePasses (passes) {
     return hashData;
 }
 
-function serializeUniforms (uniforms, names) {
-    let index = 0;
-    for (let i = 0, len = names.length; i < len; i++) {
-        let param = uniforms[names[i]];
+function serializeUniforms (uniforms) {
+    let hashData = '';
+    for (let name in uniforms) {
+        let param = uniforms[name];
         let prop = param.value;
 
         if (!prop) {
@@ -72,15 +68,14 @@ function serializeUniforms (uniforms, names) {
         }
 
         if (param.type === enums.PARAM_TEXTURE_2D || param.type === enums.PARAM_TEXTURE_CUBE) {
-            hashArray[index] = prop._id;
+            hashData += prop._id + ';';
         }
         else {
-            hashArray[index] = prop.toString();
+            hashData += prop.toString() + ';';
         }
-        index++
     }
-    hashArray.length = index;
-    return hashArray.join(';');
+
+    return hashData;
 }
 
 export default {

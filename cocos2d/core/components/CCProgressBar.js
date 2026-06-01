@@ -85,7 +85,7 @@ var ProgressBar = cc.Class({
         help: 'i18n:COMPONENT.help_url.progressbar',
     },
 
-    _initBarSprite: function() {
+    _initBarSprite: function () {
         if (this.barSprite) {
             var entity = this.barSprite.node;
             if (!entity) return;
@@ -95,7 +95,7 @@ var ProgressBar = cc.Class({
 
             var entitySize = entity.getContentSize();
 
-            if(entity.parent === this.node){
+            if (entity.parent === this.node) {
                 this.node.setContentSize(entitySize);
             }
 
@@ -107,14 +107,14 @@ var ProgressBar = cc.Class({
             if (this.mode === Mode.HORIZONTAL) {
                 this.totalLength = barSpriteSize.width;
             }
-            else if(this.mode === Mode.VERTICAL) {
+            else if (this.mode === Mode.VERTICAL) {
                 this.totalLength = barSpriteSize.height;
             }
             else {
                 this.totalLength = this.barSprite.fillRange;
             }
 
-            if(entity.parent === this.node){
+            if (entity.parent === this.node) {
                 var x = - nodeSize.width * nodeAnchor.x;
                 var y = 0;
                 entity.setPosition(cc.v2(x, y));
@@ -122,7 +122,7 @@ var ProgressBar = cc.Class({
         }
     },
 
-    _updateBarStatus: function() {
+    _updateBarStatus: function () {
         if (this.barSprite) {
             var entity = this.barSprite.node;
 
@@ -200,7 +200,7 @@ var ProgressBar = cc.Class({
             default: null,
             type: cc.Sprite,
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.bar_sprite',
-            notify: function() {
+            notify: function () {
                 this._initBarSprite();
             },
             animatable: false
@@ -215,7 +215,7 @@ var ProgressBar = cc.Class({
             default: Mode.HORIZONTAL,
             type: Mode,
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.mode',
-            notify: function() {
+            notify: function () {
                 if (this.barSprite) {
                     var entity = this.barSprite.node;
                     if (!entity) return;
@@ -245,7 +245,7 @@ var ProgressBar = cc.Class({
             get: function () {
                 return this._N$totalLength;
             },
-            set: function(value) {
+            set: function (value) {
                 if (this.mode === Mode.FILLED) {
                     value = misc.clamp01(value);
                 }
@@ -265,7 +265,7 @@ var ProgressBar = cc.Class({
             range: [0, 1, 0.1],
             slide: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.progress',
-            notify: function() {
+            notify: function () {
                 this._updateBarStatus();
             }
         },
@@ -278,7 +278,7 @@ var ProgressBar = cc.Class({
         reverse: {
             default: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.reverse',
-            notify: function() {
+            notify: function () {
                 if (this.barSprite) {
                     this.barSprite.fillStart = 1 - this.barSprite.fillStart;
                 }

@@ -44,9 +44,6 @@ HtmlTextParser.prototype = {
     constructor: HtmlTextParser,
     parse: function(htmlString) {
         this._resultObjectArray = [];
-        if (!htmlString) {
-            return this._resultObjectArray;
-        }
         this._stack = [];
 
         var startIndex = 0;

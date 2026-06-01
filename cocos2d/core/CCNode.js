@@ -26,7 +26,6 @@
 'use strict';
 
 import { Mat4, Vec2, Vec3, Quat, Trs } from './value-types';
-import { approx } from './value-types/utils'
 
 const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
@@ -95,6 +94,9 @@ var _quata = new Quat();
 var _mat4_temp = cc.mat4();
 var _vec3_temp = new Vec3();
 
+var _cachedArray = new Array(16);
+_cachedArray.length = 0;
+
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
@@ -102,10 +104,6 @@ const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 const COLOR_ON = 1 << 5;
 
-let _cachedPool = new js.Pool();
-_cachedPool.get = function () {
-    return this._get() || [];
-};
 
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
@@ -617,29 +615,29 @@ function _checkListeners (node, events) {
     return true;
 }
 
-function _doDispatchEvent (owner, event, cachedArray) {
+function _doDispatchEvent (owner, event) {
     var target, i;
     event.target = owner;
 
     // Event.CAPTURING_PHASE
-    cachedArray.length = 0;
-    owner._getCapturingTargets(event.type, cachedArray);
+    _cachedArray.length = 0;
+    owner._getCapturingTargets(event.type, _cachedArray);
     // capturing
     event.eventPhase = 1;
-    for (i = cachedArray.length - 1; i >= 0; --i) {
-        target = cachedArray[i];
+    for (i = _cachedArray.length - 1; i >= 0; --i) {
+        target = _cachedArray[i];
         if (target._capturingListeners) {
             event.currentTarget = target;
             // fire event
-            target._capturingListeners.emit(event.type, event, cachedArray);
+            target._capturingListeners.emit(event.type, event, _cachedArray);
             // check if propagation stopped
             if (event._propagationStopped) {
-                cachedArray.length = 0;
+                _cachedArray.length = 0;
                 return;
             }
         }
     }
-    cachedArray.length = 0;
+    _cachedArray.length = 0;
 
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
@@ -654,24 +652,24 @@ function _doDispatchEvent (owner, event, cachedArray) {
 
     if (!event._propagationStopped && event.bubbles) {
         // Event.BUBBLING_PHASE
-        owner._getBubblingTargets(event.type, cachedArray);
+        owner._getBubblingTargets(event.type, _cachedArray);
         // propagate
         event.eventPhase = 3;
-        for (i = 0; i < cachedArray.length; ++i) {
-            target = cachedArray[i];
+        for (i = 0; i < _cachedArray.length; ++i) {
+            target = _cachedArray[i];
             if (target._bubblingListeners) {
                 event.currentTarget = target;
                 // fire event
                 target._bubblingListeners.emit(event.type, event);
                 // check if propagation stopped
                 if (event._propagationStopped) {
-                    cachedArray.length = 0;
+                    _cachedArray.length = 0;
                     return;
                 }
             }
         }
     }
-    cachedArray.length = 0;
+    _cachedArray.length = 0;
 }
 
 // traversal the node tree, child cullingMask must keep the same with the parent.
@@ -1583,9 +1581,6 @@ let NodeDefines = {
             get () {
                 return this._is3DNode;
             }, set (v) {
-                if (this._is3DNode === v) {
-                    return;
-                }
                 this._is3DNode = v;
                 this._update3DFunction();
             }
@@ -1762,7 +1757,7 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._delaySort();
         }
-        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
+        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
             cc._widgetManager._nodesOrderDirty = true;
@@ -2344,9 +2339,8 @@ let NodeDefines = {
      * @param {Event} event - The Event object that is dispatched into the event flow
      */
     dispatchEvent (event) {
-        var _array = _cachedPool.get();
-        _doDispatchEvent(this, event, _array);
-        _cachedPool.put(_array);
+        _doDispatchEvent(this, event);
+        _cachedArray.length = 0;
     },
 
     /**
@@ -2882,7 +2876,7 @@ let NodeDefines = {
         var locContentSize = this._contentSize;
         var clone;
         if (height === undefined) {
-            if (approx(size.width, locContentSize.width) && approx(size.height, locContentSize.height))
+            if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
                 return;
             if (CC_EDITOR) {
                 clone = cc.size(locContentSize.width, locContentSize.height);
@@ -2890,7 +2884,7 @@ let NodeDefines = {
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
-            if (approx(size, locContentSize.width) && approx(height, locContentSize.height))
+            if ((size === locContentSize.width) && (height === locContentSize.height))
                 return;
             if (CC_EDITOR) {
                 clone = cc.size(locContentSize.width, locContentSize.height);
@@ -3626,25 +3620,6 @@ let NodeDefines = {
 
     /**
      * !#en
-     * Set Group index of node without children.<br/>
-     * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
-     * !#zh
-     * 设置节点本身的分组索引。不影响子节点<br/>
-     * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
-     * @property groupIndex
-     * @type {Integer}
-     * @default 0
-     */
-    setSelfGroupIndex (groupIndex) {
-        this._groupIndex = groupIndex || 0;
-        this._cullingMask = 1 << groupIndex;
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy && this._proxy.updateCullingMask();
-        }
-    },
-
-    /**
-     * !#en
      * Adds a child to the node with z order and name.
      * !#zh
      * 添加子节点，并且可以修改该节点的 局部 Z 顺序和名字。
@@ -3770,7 +3745,7 @@ let NodeDefines = {
 
         this._fromEuler();
 
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
             this._renderComponent.markForRender(true);
         }
@@ -3782,14 +3757,6 @@ let NodeDefines = {
 
     onRestore: CC_EDITOR && function () {
         this._onRestoreBase();
-
-        this.emit(EventType.GROUP_CHANGED, this);
-        this.emit(EventType.POSITION_CHANGED, this.position.clone());
-        this.emit(EventType.SIZE_CHANGED, this._contentSize.clone());
-        this.emit(EventType.ROTATION_CHANGED);
-        this.emit(EventType.SCALE_CHANGED)
-        this.emit(EventType.COLOR_CHANGED, this._color.clone());
-        this.emit(EventType.ANCHOR_CHANGED);
 
         this._restoreProperties();
 

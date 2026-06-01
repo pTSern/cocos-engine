@@ -836,6 +836,7 @@ cc.Director.prototype = {
         this._lastUpdate = performance.now();
         this._deltaTime = 0;
     },
+
     /*
      * Run main loop of director
      */
@@ -844,7 +845,7 @@ cc.Director.prototype = {
 
         // Update
         if (!this._paused) {
-            this.emit(cc.Director.EVENT_BEFORE_UPDATE, deltaTime);
+            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
 
             this._compScheduler.startPhase();
             this._compScheduler.updatePhase(deltaTime);
@@ -855,15 +856,15 @@ cc.Director.prototype = {
 
             this._compScheduler.lateUpdatePhase(deltaTime);
 
-            this.emit(cc.Director.EVENT_AFTER_UPDATE, deltaTime);
+            this.emit(cc.Director.EVENT_AFTER_UPDATE);
         }
 
         // Render
-        this.emit(cc.Director.EVENT_BEFORE_DRAW, deltaTime);
+        this.emit(cc.Director.EVENT_BEFORE_DRAW);
         renderer.render(this._scene, deltaTime);
-
+        
         // After draw
-        this.emit(cc.Director.EVENT_AFTER_DRAW, deltaTime);
+        this.emit(cc.Director.EVENT_AFTER_DRAW);
 
         this._totalFrames++;
 
@@ -876,36 +877,35 @@ cc.Director.prototype = {
             // calculate "global" dt
             this.calculateDeltaTime(now);
 
-            const deltaTime = this._deltaTime;
             // Update
             if (!this._paused) {
                 // before update
-                this.emit(cc.Director.EVENT_BEFORE_UPDATE, deltaTime);
+                this.emit(cc.Director.EVENT_BEFORE_UPDATE);
 
                 // Call start for new added components
                 this._compScheduler.startPhase();
 
                 // Update for components
-                this._compScheduler.updatePhase(deltaTime);
+                this._compScheduler.updatePhase(this._deltaTime);
                 // Engine update with scheduler
-                this._scheduler.update(deltaTime);
+                this._scheduler.update(this._deltaTime);
 
                 // Late update for components
-                this._compScheduler.lateUpdatePhase(deltaTime);
+                this._compScheduler.lateUpdatePhase(this._deltaTime);
 
                 // User can use this event to do things after update
-                this.emit(cc.Director.EVENT_AFTER_UPDATE, deltaTime);
-
+                this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                
                 // Destroy entities that have been removed recently
                 Obj._deferredDestroy();
             }
 
             // Render
-            this.emit(cc.Director.EVENT_BEFORE_DRAW, deltaTime);
-            renderer.render(this._scene, deltaTime);
+            this.emit(cc.Director.EVENT_BEFORE_DRAW);
+            renderer.render(this._scene, this._deltaTime);
 
             // After draw
-            this.emit(cc.Director.EVENT_AFTER_DRAW, deltaTime);
+            this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
             this._totalFrames++;

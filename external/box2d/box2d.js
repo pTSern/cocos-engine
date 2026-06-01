@@ -1,9 +1,10 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (factory((global.box2d = {})));
-  }(this, (function (exports) { 'use strict';
-  
+        typeof define === 'function' && define.amd ? define(['exports'], factory) :
+            (factory((global.box2d = {})));
+}(this, (function (exports) {
+    'use strict';
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -188,7 +189,7 @@
         }
         return a;
     }
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -1088,7 +1089,7 @@
         };
         return b2Sweep;
     }());
-  
+
     /*
     * Copyright (c) 2011 Erin Catto http://box2d.org
     *
@@ -1280,7 +1281,7 @@
         };
         return b2Draw;
     }());
-  
+
     /*
     * Copyright (c) 2011 Erin Catto http://box2d.org
     *
@@ -1355,7 +1356,7 @@
         };
         return b2Counter;
     }());
-  
+
     /*
     * Copyright (c) 2010 Erin Catto http://www.box2d.org
     *
@@ -1406,7 +1407,7 @@
         };
         return b2GrowableStack;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -1429,7 +1430,7 @@
         }
         return b2BlockAllocator;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -1452,7 +1453,7 @@
         }
         return b2StackAllocator;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -2162,7 +2163,7 @@
         output.iterations = iter;
         return true;
     }
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -2754,7 +2755,7 @@
         b2Distance(output, simplexCache, input);
         return output.distance < 10 * b2_epsilon;
     }
-  
+
     /*
     * Copyright (c) 2009 Erin Catto http://www.box2d.org
     *
@@ -3283,7 +3284,7 @@
             if (index === null) {
                 return;
             }
-            if (index === this.m_root) ;
+            if (index === this.m_root);
             var node = index;
             if (node.IsLeaf()) {
                 // DEBUG: b2Assert(node.child1 === null);
@@ -3468,7 +3469,7 @@
         b2DynamicTree.s_node_id = 0;
         return b2DynamicTree;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -3683,7 +3684,7 @@
         }
         return pair1.proxyA.m_id - pair2.proxyA.m_id;
     }
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -3947,7 +3948,7 @@
         distanceInput.useRadii = false;
         // The outer loop progressively attempts to compute new separating axes.
         // This loop terminates when an axis is repeated (no progress is made).
-        for (;;) {
+        for (; ;) {
             var xfA = b2TimeOfImpact_s_xfA;
             var xfB = b2TimeOfImpact_s_xfB;
             sweepA.GetTransform(xfA, t1);
@@ -4004,7 +4005,7 @@
             var done = false;
             var t2 = tMax;
             var pushBackIter = 0;
-            for (;;) {
+            for (; ;) {
                 // Find the deepest point at t2. Store the witness point indices.
                 var indexA = b2TimeOfImpact_s_indexA;
                 var indexB = b2TimeOfImpact_s_indexB;
@@ -4045,7 +4046,7 @@
                 var rootIterCount = 0;
                 var a1 = t1;
                 var a2 = t2;
-                for (;;) {
+                for (; ;) {
                     // Use a mix of the secant rule and bisection.
                     var t = 0;
                     if (rootIterCount & 1) {
@@ -4100,7 +4101,7 @@
         exports.b2_toiMaxTime = b2Max(exports.b2_toiMaxTime, time);
         exports.b2_toiTime += time;
     }
-  
+
     var b2CollideCircles_s_pA = new b2Vec2();
     var b2CollideCircles_s_pB = new b2Vec2();
     function b2CollideCircles(manifold, circleA, xfA, circleB, xfB) {
@@ -4199,7 +4200,7 @@
             manifold.points[0].id.key = 0;
         }
     }
-  
+
     // DEBUG: import { b2Assert } from "../Common/b2Settings";
     var b2EdgeSeparation_s_normal1World = new b2Vec2();
     var b2EdgeSeparation_s_normal1 = new b2Vec2();
@@ -4445,7 +4446,7 @@
         }
         manifold.pointCount = pointCount;
     }
-  
+
     // DEBUG: import { b2Assert } from "../Common/b2Settings";
     var b2CollideEdgeAndCircle_s_Q = new b2Vec2();
     var b2CollideEdgeAndCircle_s_e = new b2Vec2();
@@ -4979,7 +4980,7 @@
         var collider = b2CollideEdgeAndPolygon_s_collider;
         collider.Collide(manifold, edgeA, xfA, polygonB, xfB);
     }
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -5041,7 +5042,7 @@
         };
         return b2Shape;
     }());
-  
+
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -5057,17 +5058,17 @@
     and limitations under the License.
     ***************************************************************************** */
     /* global Reflect, Promise */
-  
+
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
         function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-  
+
     function __extends(d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     }
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -5212,7 +5213,7 @@
         b2CircleShape.ComputeAABB_s_p = new b2Vec2();
         return b2CircleShape;
     }(b2Shape));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -5310,7 +5311,7 @@
             var hull = b2PolygonShape.Set_s_hull;
             var m = 0;
             var ih = i0;
-            for (;;) {
+            for (; ;) {
                 // DEBUG: b2Assert(m < b2_maxPolygonVertices);
                 hull[m] = ih;
                 var ie = 0;
@@ -5754,7 +5755,7 @@
         b2PolygonShape.ComputeCentroid_s_e2 = new b2Vec2();
         return b2PolygonShape;
     }(b2Shape));
-  
+
     /*
     * Copyright (c) 2006-2010 Erin Catto http://www.box2d.org
     *
@@ -5935,7 +5936,7 @@
         b2EdgeShape.ComputeAABB_s_v2 = new b2Vec2();
         return b2EdgeShape;
     }(b2Shape));
-  
+
     /*
     * Copyright (c) 2006-2010 Erin Catto http://www.box2d.org
     *
@@ -6153,7 +6154,7 @@
         b2ChainShape.ComputeAABB_s_v2 = new b2Vec2();
         return b2ChainShape;
     }(b2Shape));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -6481,7 +6482,7 @@
         b2Fixture.Synchronize_s_displacement = new b2Vec2();
         return b2Fixture;
     }());
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -7410,7 +7411,7 @@
         b2Body.SynchronizeFixtures_s_xf1 = new b2Transform();
         return b2Body;
     }());
-  
+
     /*
     * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
     *
@@ -7559,7 +7560,7 @@
         };
         return b2Joint;
     }());
-  
+
     /*
     * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
     *
@@ -7852,7 +7853,7 @@
         b2DistanceJoint.SolvePositionConstraints_s_P = new b2Vec2();
         return b2DistanceJoint;
     }(b2Joint));
-  
+
     var b2AreaJointDef = /** @class */ (function (_super) {
         __extends(b2AreaJointDef, _super);
         function b2AreaJointDef() {
@@ -8027,7 +8028,7 @@
         };
         return b2AreaJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
     *
@@ -8270,7 +8271,7 @@
         b2FrictionJoint.SolveVelocityConstraints_s_oldImpulseV = new b2Vec2();
         return b2FrictionJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -8711,7 +8712,7 @@
         b2GearJoint.SolvePositionConstraints_s_rD = new b2Vec2();
         return b2GearJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2012 Erin Catto http://www.box2d.org
     *
@@ -8987,7 +8988,7 @@
         b2MotorJoint.SolveVelocityConstraints_s_oldImpulse_v2 = new b2Vec2();
         return b2MotorJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
     *
@@ -9196,7 +9197,7 @@
         b2MouseJoint.SolveVelocityConstraints_s_oldImpulse = new b2Vec2();
         return b2MouseJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -9826,7 +9827,7 @@
         b2PrismaticJoint.GetJointTranslation_s_axis = new b2Vec2();
         return b2PrismaticJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -10163,7 +10164,7 @@
         b2PulleyJoint.GetCurrentLengthB_s_p = new b2Vec2();
         return b2PulleyJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -10646,7 +10647,7 @@
         b2RevoluteJoint.SolvePositionConstraints_s_impulse = new b2Vec2();
         return b2RevoluteJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -10888,7 +10889,7 @@
         b2RopeJoint.SolvePositionConstraints_s_P = new b2Vec2();
         return b2RopeJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -11214,7 +11215,7 @@
         b2WeldJoint.SolvePositionConstraints_s_impulse = new b2Vec3();
         return b2WeldJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -11686,7 +11687,7 @@
         b2WheelJoint.SolvePositionConstraints_s_P = new b2Vec2();
         return b2WheelJoint;
     }(b2Joint));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -11915,7 +11916,7 @@
         b2Contact.ComputeTOI_s_output = new b2TOIOutput();
         return b2Contact;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -11955,7 +11956,7 @@
         };
         return b2CircleContact;
     }(b2Contact));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -11995,7 +11996,7 @@
         };
         return b2PolygonContact;
     }(b2Contact));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12037,7 +12038,7 @@
         };
         return b2PolygonAndCircleContact;
     }(b2Contact));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12079,7 +12080,7 @@
         };
         return b2EdgeAndCircleContact;
     }(b2Contact));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12121,7 +12122,7 @@
         };
         return b2EdgeAndPolygonContact;
     }(b2Contact));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12167,7 +12168,7 @@
         b2ChainAndCircleContact.Evaluate_s_edge = new b2EdgeShape();
         return b2ChainAndCircleContact;
     }(b2Contact));
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12213,7 +12214,7 @@
         b2ChainAndPolygonContact.Evaluate_s_edge = new b2EdgeShape();
         return b2ChainAndPolygonContact;
     }(b2Contact));
-  
+
     // DEBUG: import { b2Assert } from "../../Common/b2Settings";
     var b2ContactRegister = /** @class */ (function () {
         function b2ContactRegister() {
@@ -12321,7 +12322,7 @@
         };
         return b2ContactFactory;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12501,7 +12502,7 @@
         };
         return b2RayCastCallback;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -12711,7 +12712,7 @@
         };
         return b2ContactManager;
     }());
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -12807,7 +12808,7 @@
         }
         return b2SolverData;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -13327,7 +13328,7 @@
                     const k_errorTol: number = 0.001;
                     #endif
                     */
-                    for (;;) {
+                    for (; ;) {
                         //
                         // Case 1: vn = 0
                         //
@@ -13693,7 +13694,7 @@
         b2ContactSolver.SolveTOIPositionConstraints_s_P = new b2Vec2();
         return b2ContactSolver;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -14178,7 +14179,7 @@
         b2Island.s_impulse = new b2ContactImpulse();
         return b2Island;
     }());
-  
+
     /*
      * Copyright (c) 2013 Google, Inc.
      *
@@ -14272,7 +14273,7 @@
         return b2ParticleHandle;
     }());
     // #endif
-  
+
     /*
      * Copyright (c) 2013 Google, Inc.
      *
@@ -14478,7 +14479,7 @@
         return b2ParticleGroup;
     }());
     // #endif
-  
+
     /*
      * Copyright (c) 2013 Google, Inc.
      *
@@ -14545,7 +14546,7 @@
         return b2StackQueue;
     }());
     // #endif
-  
+
     /*
      * Copyright (c) 2013 Google, Inc.
      *
@@ -14769,7 +14770,7 @@
         b2VoronoiDiagram.Task = Task;
     })(b2VoronoiDiagram || (b2VoronoiDiagram = {})); // namespace b2VoronoiDiagram
     // #endif
-  
+
     /*
      * Copyright (c) 2013 Google, Inc.
      *
@@ -14800,11 +14801,11 @@
         var left = first;
         var stack = [];
         var pos = 0;
-        for (;;) { /* outer loop */
+        for (; ;) { /* outer loop */
             for (; left + 1 < len; len++) { /* sort left to len-1 */
                 var pivot = array[left + Math.floor(Math.random() * (len - left))]; /* pick random pivot */
                 stack[pos++] = len; /* sort right part later */
-                for (var right = left - 1;;) { /* inner loop: partitioning */
+                for (var right = left - 1; ;) { /* inner loop: partitioning */
                     while (cmp(array[++right], pivot)) { } /* look for greater element */
                     while (cmp(pivot, array[--len])) { } /* look for smaller element */
                     if (right >= len) {
@@ -17039,7 +17040,7 @@
             // to
             //     listA => listB => b1 => b2 => a1 => a2 => a3 => null
             // DEBUG: b2Assert(listA !== listB);
-            for (var b = listB;;) {
+            for (var b = listB; ;) {
                 b.list = listA;
                 var nextB = b.next;
                 if (nextB) {
@@ -19873,7 +19874,7 @@
         b2ParticleSystem.SolveCollisionCallback = SolveCollisionCallback;
     })(exports.b2ParticleSystem || (exports.b2ParticleSystem = {}));
     // #endif
-  
+
     /*
     * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
     *
@@ -20878,7 +20879,7 @@
             // Size the island for the worst case.
             var island = this.m_island;
             island.Initialize(this.m_bodyCount, this.m_contactManager.m_contactCount, this.m_jointCount, null, // this.m_stackAllocator,
-            this.m_contactManager.m_contactListener);
+                this.m_contactManager.m_contactListener);
             // Clear all the island flags.
             for (var b = this.m_bodyList; b; b = b.m_next) {
                 b.m_islandFlag = false;
@@ -21030,7 +21031,7 @@
                 }
             }
             // Find TOI events and solve them.
-            for (;;) {
+            for (; ;) {
                 // Find the first TOI.
                 var minContact = null;
                 var minAlpha = 1;
@@ -21315,7 +21316,7 @@
         b2World.SolveTOI_s_toi_output = new b2TOIOutput();
         return b2World;
     }());
-  
+
     /*
      * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
      *
@@ -21459,7 +21460,7 @@
         return b2Controller;
     }());
     // #endif
-  
+
     /*
      * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
      *
@@ -21596,7 +21597,7 @@
         return b2BuoyancyController;
     }(b2Controller));
     // #endif
-  
+
     /*
      * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
      *
@@ -21642,7 +21643,7 @@
         return b2ConstantAccelController;
     }(b2Controller));
     // #endif
-  
+
     /*
      * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
      *
@@ -21686,7 +21687,7 @@
         return b2ConstantForceController;
     }(b2Controller));
     // #endif
-  
+
     /*
      * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
      *
@@ -21783,7 +21784,7 @@
         return b2GravityController;
     }(b2Controller));
     // #endif
-  
+
     /*
      * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
      *
@@ -21864,7 +21865,7 @@
         return b2TensorDampingController;
     }(b2Controller));
     // #endif
-  
+
     /*
     * Copyright (c) 2011 Erin Catto http://www.box2d.org
     *
@@ -22086,7 +22087,7 @@
         b2Rope.s_J2 = new b2Vec2();
         return b2Rope;
     }());
-  
+
     /*
     * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
     *
@@ -22104,7 +22105,7 @@
     * misrepresented as being the original software.
     * 3. This notice may not be removed or altered from any source distribution.
     */
-  
+
     exports.b2Assert = b2Assert;
     exports.b2Maybe = b2Maybe;
     exports.b2_maxFloat = b2_maxFloat;
@@ -22328,8 +22329,7 @@
     exports.b2ParticleSystemDef = b2ParticleSystemDef;
     exports.b2RopeDef = b2RopeDef;
     exports.b2Rope = b2Rope;
-  
+
     Object.defineProperty(exports, '__esModule', { value: true });
-  
-  })));
-  
+
+})));

@@ -128,7 +128,7 @@ var eventManager = {
     _setDirtyForNode: function (node) {
         // Mark the node dirty only when there is an event listener associated with it.
         let selListeners = this._nodeListenersMap[node._id];
-        if (selListeners) {
+        if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 let selListener = selListeners[j];
                 let listenerID = selListener._getListenerID();
@@ -157,13 +157,8 @@ var eventManager = {
         }
         var listeners = this._nodeListenersMap[node._id], i, len;
         if (listeners) {
-            for (i = 0, len = listeners.length; i < len; i++) {
-                const listener = listeners[i];
-                listener._setPaused(true);
-                if (listener._claimedTouches && listener._claimedTouches.includes(this._currentTouch)) {
-                    this._clearCurTouch();
-                }
-            }
+            for (i = 0, len = listeners.length; i < len; i++)
+                listeners[i]._setPaused(true);
         }
         if (recursive === true) {
             var locChildren = node._children;

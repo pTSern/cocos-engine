@@ -1,5 +1,4 @@
 import Pass from '../../../renderer/core/pass';
-import enums from '../../../renderer/enums';
 
 const gfx = cc.gfx;
 
@@ -50,14 +49,7 @@ export default class EffectBase {
             this._createPassProp(name, pass);
         }
 
-        let prop = properties[name];
-
-        let compareValue = value;
-        if (prop.type === enums.PARAM_TEXTURE_2D) {
-            compareValue = value && value.getImpl();
-        }
-
-        if (prop.value === compareValue) {
+        if (properties[name].value === value) {
             return true;
         }
 

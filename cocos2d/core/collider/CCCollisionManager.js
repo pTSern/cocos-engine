@@ -425,8 +425,10 @@ let CollisionManager = cc.Class({
             colliders.splice(index, 1);
 
             let contacts = this._contacts;
+
             for (let i = contacts.length - 1; i >= 0; i--) {
                 let contact = contacts[i];
+
                 if (contact.collider1 === collider || contact.collider2 === collider) {
                     if (contact.touching) {
                         this._doCollide(CollisionType.CollisionExit, contact);

@@ -57,7 +57,7 @@ let TiledObjectGroup = cc.Class({
      * let offset = tMXObjectGroup.getProperties();
      */
     getProperties () {
-        return this._properties;
+        this._properties;
     },
 
     /**

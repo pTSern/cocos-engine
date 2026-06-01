@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import Assembler2D from '../../assembler-2d';
-import Mat4 from '../../../value-types/mat4';
 
 const MotionStreak = require('../../../components/CCMotionStreak');
 const RenderFlow = require('../../render-flow');
@@ -50,7 +49,6 @@ let _tangent = cc.v2();
 let _miter = cc.v2();
 let _normal = cc.v2();
 let _vec2 = cc.v2();
-let _worldMat = new Mat4();
 
 function normal (out, dir) {
     //get perpendicular
@@ -79,11 +77,6 @@ function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
 }
 
 export default class MotionStreakAssembler extends Assembler2D {
-    constructor () {
-        super();
-        this._tailShortenTime = 0;
-    }
-
     initData () {
         this._renderData.createFlexData(0, 16, (16 - 2) * 3);
     }
@@ -94,119 +87,82 @@ export default class MotionStreakAssembler extends Assembler2D {
         let stroke = comp._stroke / 2;
 
         let node = comp.node;
-        node.getWorldMatrix(_worldMat);
-        let tx = _worldMat.m[12], ty = _worldMat.m[13];
+        let matrix = node._worldMatrix.m;
+        let tx = matrix[12], ty = matrix[13];
 
         let points = comp._points;
-        let lastPos = comp._lastWPos;
-        let fadeTime = comp._fadeTime;
 
-        let moved = comp._lastWPosUpdated && (lastPos.x !== tx || lastPos.y !== ty);
-        if (moved) {
-            let cur;
-            let newHead = false;
-            if (points.length === 0) {
-                // new
-                let prev = new Point();
-                prev.setPoint(lastPos.x, lastPos.y);
-                this._tailShortenTime = prev.time = fadeTime;
-                points.push(prev);
-
-                cur = new Point();
-                points.unshift(cur);
-            }
-            else {
-                // check moved distance
+        let cur;
+        if (points.length > 1) {
+            let difx = points[0].point.x - tx;
+            let dify = points[0].point.y - ty;
+            if ((difx*difx + dify*dify) < comp.minSeg) {
                 cur = points[0];
-                let prev = points[1];
-                let difx = prev.point.x - tx;
-                let dify = prev.point.y - ty;
-                newHead = ((difx*difx + dify*dify) >= comp.minSeg*comp.minSeg);
-            }
-            // update head
-            cur.setPoint(tx, ty);
-            cur.time = fadeTime + dt;
-            let prev = points[1];
-            cur.distance = cur.point.sub(prev.point, _vec2).mag();
-            _vec2.normalizeSelf();
-            cur.setDir(_vec2.x, _vec2.y);
-
-            let prevIsTail = points.length === 2;
-            if (prevIsTail) {
-                prev.setDir(_vec2.x, _vec2.y);
-            }
-
-            if (newHead) {
-                let point = new Point(cur.point.clone(), cur.dir.clone());
-                point.distance = cur.distance;
-                point.time = cur.time;
-                points.unshift(point);
             }
         }
 
-        lastPos.x = tx;
-        lastPos.y = ty;
-        comp._lastWPosUpdated = true;
+        if (!cur) {
+            cur = new Point();
+            points.splice(0, 0, cur);
+        }
+
+        cur.setPoint(tx, ty);
+        cur.time = comp._fadeTime + dt;
+        
+        let verticesCount = 0;
+        let indicesCount = 0;
 
         if (points.length < 2) {
             return;
         }
 
-        // cc.log(points.map(x => x.time.toFixed(2)).reverse().join(' '), ',', this._tailShortenTime.toFixed(2));
+        let color = comp._color,
+            cr = color.r, cg = color.g, cb = color.b, ca = color.a;
 
-        let color = comp._color, ca = color.a;
-        let crgb = (color.b<<16) | (color.g<<8) | color.r;
+        let prev = points[1];
+        prev.distance = cur.point.sub(prev.point, _vec2).mag();
+        _vec2.normalizeSelf();
+        prev.setDir(_vec2.x, _vec2.y);
+        cur.setDir(_vec2.x, _vec2.y);
 
-        let verticesCount = 0;
-        let indicesCount = 0;
         let flexBuffer = this._renderData._flexBuffer;
         flexBuffer.reserve(points.length*2, (points.length-1)*6);
         let vData = flexBuffer.vData;
         let uintVData = flexBuffer.uintVData;
         let vertsOffset = 5;
 
+        let fadeTime = comp._fadeTime;
+        let findLast = false;
         for (let i = points.length - 1; i >=0 ; i--) {
             let p = points[i];
             let point = p.point;
             let dir = p.dir;
             p.time -= dt;
-
-            let isLast = i === points.length - 1;
-
-            if (p.time <= 0) {
-                if (isLast && i - 1 >= 0) {
-                    this._tailShortenTime = points[i - 1].time - dt;
-                }
+            
+            if (p.time < 0) {
                 points.splice(i, 1);
                 continue;
             }
 
             let progress = p.time / fadeTime;
 
-            if (isLast) {
-                let next = points[i - 1];
+            let next = points[i - 1];
+            if (!findLast) {
                 if (!next) {
                     points.splice(i, 1);
                     continue;
                 }
-                let nextIsStatic = points.length >= 3;
-                if (nextIsStatic) {
-                    let segmentProgress = p.time / this._tailShortenTime;
-                    if (segmentProgress <= 1) {
-                        point.x = next.point.x - next.distance * next.dir.x * segmentProgress;
-                        point.y = next.point.y - next.distance * next.dir.y * segmentProgress;
-                    }
-                }
-                else {
-                    this._tailShortenTime = p.time;
-                }
+                
+                point.x = next.point.x - dir.x * progress;
+                point.y = next.point.y - dir.y * progress;
             }
+            findLast = true;
 
             normal(_normal, dir);
 
             
-            let da = progress * ca;
-            let c = ((da<<24) >>> 0) | crgb;
+            let da = progress*ca;
+            let c = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
 
             let offset = verticesCount * vertsOffset;
 
@@ -227,7 +183,7 @@ export default class MotionStreakAssembler extends Assembler2D {
             verticesCount += 2;
         }
 
-        indicesCount = verticesCount <= 2 ? 0 : (verticesCount - 2) * 3;
+        indicesCount = verticesCount <= 2 ? 0 : (verticesCount - 2)*3;
 
         flexBuffer.used(verticesCount, indicesCount);
     }

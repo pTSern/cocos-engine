@@ -454,12 +454,7 @@ if (CC_DEBUG) {
     }, function (v) {
         cc.warnID(1400, 'sharedMaterials', 'setMaterial');
         this.materials = v;
-    });
-
-    // cc.Follow
-    markFunctionWarning(cc.Follow.prototype, {
-        setBoudarySet : 'cc.Follow.setBoundarySet'
-    });
+    })
 
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
@@ -693,7 +688,7 @@ if (CC_DEBUG) {
     });
 
     // dragon bones
-    if (typeof dragonBones === 'object' && typeof dragonBones.CCFactory !== 'undefined') {
+    if (typeof dragonBones !== 'undefined') {
         js.get(dragonBones.CCFactory, 'getFactory', function () {
             cc.errorID(1400, 'dragonBones.CCFactory.getFactory', 'dragonBones.CCFactory.getInstance');
             return dragonBones.CCFactory.getInstance;

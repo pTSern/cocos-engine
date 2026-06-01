@@ -777,7 +777,7 @@ let ScrollView = cc.Class({
 
     _onMouseWheel (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this.hasNestedViewGroup(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         let deltaMove = cc.v2(0, 0);
         let wheelPrecision = -0.1;
@@ -909,13 +909,8 @@ let ScrollView = cc.Class({
         }
     },
 
-    /**
-     * !#en Whether this scroll view has the nested view group.
-     * !#zh 此 Scoll View 是否含有嵌套的 View Group
-     * @method hasNestedViewGroup
-     * @returns {Boolean} - Whether this ScrollView has the nested view group.
-     */
-    hasNestedViewGroup (event, captureListeners) {
+    //this is for nested scrollview
+    _hasNestedViewGroup (event, captureListeners) {
         if (event.eventPhase !== cc.Event.CAPTURING_PHASE) return;
 
         if (captureListeners) {
@@ -948,7 +943,7 @@ let ScrollView = cc.Class({
     // touch event handler
     _onTouchBegan (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this.hasNestedViewGroup(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         let touch = event.touch;
         if (this.content) {
@@ -960,7 +955,7 @@ let ScrollView = cc.Class({
 
     _onTouchMoved (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this.hasNestedViewGroup(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         let touch = event.touch;
         if (this.content) {
@@ -989,7 +984,7 @@ let ScrollView = cc.Class({
 
     _onTouchEnded (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this.hasNestedViewGroup(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         this._dispatchEvent('touch-up');
 
@@ -1006,7 +1001,7 @@ let ScrollView = cc.Class({
 
     _onTouchCancelled (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this.hasNestedViewGroup(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         // Filte touch cancel event send from self
         if (!event.simulate) {
@@ -1051,43 +1046,38 @@ let ScrollView = cc.Class({
             realMove = realMove.add(outOfBoundary);
         }
 
-        let vertical_scrollEventType = "";
-        let horizontal_scrollEventType = "";
-        
-        if (this.vertical) {
-            if (realMove.y > 0) { //up
-                let icBottomPos = this.content.y - this.content.anchorY * this.content.height;
+        let scrollEventType = -1;
 
-                if (icBottomPos + realMove.y >= this._bottomBoundary) {
-                    vertical_scrollEventType = 'scroll-to-bottom';
-                }
-            }
-            else if (realMove.y < 0) { //down
-                let icTopPos = this.content.y - this.content.anchorY * this.content.height + this.content.height;
+        if (realMove.y > 0) { //up
+            let icBottomPos = this.content.y - this.content.anchorY * this.content.height;
 
-                if (icTopPos + realMove.y <= this._topBoundary) {
-                    vertical_scrollEventType = 'scroll-to-top';
-                }
+            if (icBottomPos + realMove.y >= this._bottomBoundary) {
+                scrollEventType = 'scroll-to-bottom';
             }
         }
-        if (this.horizontal) {
-            if (realMove.x < 0) { //left
-                let icRightPos = this.content.x - this.content.anchorX * this.content.width + this.content.width;
-                if (icRightPos + realMove.x <= this._rightBoundary) {
-                    horizontal_scrollEventType = 'scroll-to-right';
-                }
+        else if (realMove.y < 0) { //down
+            let icTopPos = this.content.y - this.content.anchorY * this.content.height + this.content.height;
+
+            if (icTopPos + realMove.y <= this._topBoundary) {
+                scrollEventType = 'scroll-to-top';
             }
-            else if (realMove.x > 0) { //right
-                let icLeftPos = this.content.x - this.content.anchorX * this.content.width;
-                if (icLeftPos + realMove.x >= this._leftBoundary) {
-                    horizontal_scrollEventType = 'scroll-to-left';
-                }
+        }
+        if (realMove.x < 0) { //left
+            let icRightPos = this.content.x - this.content.anchorX * this.content.width + this.content.width;
+            if (icRightPos + realMove.x <= this._rightBoundary) {
+                scrollEventType = 'scroll-to-right';
+            }
+        }
+        else if (realMove.x > 0) { //right
+            let icLeftPos = this.content.x - this.content.anchorX * this.content.width;
+            if (icLeftPos + realMove.x >= this._leftBoundary) {
+                scrollEventType = 'scroll-to-left';
             }
         }
 
         this._moveContent(realMove, false);
 
-        if ((this.horizontal && realMove.x !== 0) || (this.vertical && realMove.y !== 0)) {
+        if (realMove.x !== 0 || realMove.y !== 0) {
             if (!this._scrolling) {
                 this._scrolling = true;
                 this._dispatchEvent('scroll-began');
@@ -1095,12 +1085,8 @@ let ScrollView = cc.Class({
             this._dispatchEvent('scrolling');
         }
 
-        if (vertical_scrollEventType !== '') {
-            this._dispatchEvent(vertical_scrollEventType);
-        }
-
-        if (horizontal_scrollEventType !== '') {
-            this._dispatchEvent(horizontal_scrollEventType);
+        if (scrollEventType !== -1) {
+            this._dispatchEvent(scrollEventType);
         }
 
     },
