@@ -138,7 +138,7 @@ js.value(CCObject, 'Flags', {
     /**
      * !#en The lock node, when the node is locked, cannot be clicked in the scene.
      * !#zh 锁定节点，锁定后场景内不能点击。
-     * 
+     *
      * @property LockedInEditor
      * @private
      */
@@ -445,9 +445,9 @@ function compileDestruct (obj, ctor) {
  * ```
  * !#zh
  * 清除实例中的所有引用。
- * 
+ *
  * 注意：此方法不会清除在 `CCObject` 实例中定义的 `getter` 或 `setter`。如果需要，你可以重写 `_destruct` 方法。例如：
- * 
+ *
  * ```js
  * _destruct: function () {
  *     for (var key in this) {
